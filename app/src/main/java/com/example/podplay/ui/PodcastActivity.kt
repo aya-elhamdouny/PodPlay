@@ -3,13 +3,13 @@ package com.example.podplay.ui
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
-import android.view.MenuInflater
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import com.example.podplay.R
+import com.example.podplay.databinding.ActivityPodcastBinding
 import com.example.podplay.repository.ItunesRepository
 import com.example.podplay.service.ItunesService
 import kotlinx.coroutines.GlobalScope
@@ -19,24 +19,30 @@ import kotlinx.coroutines.launch
 class PodcastActivity : AppCompatActivity() {
 
     val TAG = javaClass.simpleName
+    private lateinit var binding: ActivityPodcastBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_podcast)
 
+       binding = ActivityPodcastBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setupToolbar()
 
+    }
 
+    private fun setupToolbar(){
+        setSupportActionBar(binding.toolbar)
 
     }
 
 
-    private fun performSearch(term : String){
+    private fun performSearch(term: String){
         val itunesService = ItunesService.instance
         val repository = ItunesRepository(itunesService)
 
         GlobalScope.launch{
             val result  = repository.searchByTerm(term)
-            Log.i(TAG , "RESULT = ${result.body()}")
+            Log.i(TAG, "RESULT = ${result.body()}")
         }
     }
 
@@ -64,7 +70,7 @@ class PodcastActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         val inflater = menuInflater
-        inflater.inflate(R.menu.menu_search , menu)
+        inflater.inflate(R.menu.menu_search, menu)
 
         //set el search as actionview
         val searchmenuItem = menu?.findItem(R.id.search_item)
