@@ -27,6 +27,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="8dp"
+            android:layout_marginRight="10dp"
             android:src="@drawable/ic_baseline_settings_system_daydream_24"/>
 
 

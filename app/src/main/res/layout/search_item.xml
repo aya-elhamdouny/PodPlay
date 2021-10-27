@@ -8,6 +8,7 @@
     android:layout_marginRight="20dp"
     android:layout_marginLeft="20dp"
     android:layout_marginTop="10dp"
+    android:padding="8dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -16,6 +17,7 @@
         android:id="@+id/podcastImage"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_marginTop="9dp"
         android:layout_marginBottom="9dp"
         android:layout_marginStart="5dp"
         android:adjustViewBounds="true"
@@ -35,7 +37,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/podcastImage"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/podcastImage"
         tools:text="Name" />
     <TextView
         android:id="@+id/podcastLastUpdatedTextView"

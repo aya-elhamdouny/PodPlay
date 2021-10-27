@@ -60,7 +60,7 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
     )
 
 
-    fun getEpisode(podcastViewData : SearchViewmodel.podcastSummuryViewData) : PodcastViewData?{
+    fun getPodcast(podcastViewData : SearchViewmodel.podcastSummuryViewData) : PodcastViewData?{
         val result = podcastViewData.feedUrl?.let { repo?.getPodcast(it) }
         result?.let {
             it.feedTitle = podcastViewData.name ?:""
