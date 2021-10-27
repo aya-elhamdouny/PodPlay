@@ -1,9 +1,9 @@
 package com.example.podplay.service
 
+import com.example.podplay.model.PodcastResponse
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
 import retrofit2.http.GET
 import retrofit2.http.Query
 

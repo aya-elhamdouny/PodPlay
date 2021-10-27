@@ -1,4 +1,4 @@
-package com.example.podplay.service
+package com.example.podplay.model
 
 
 data class PodcastResponse(

@@ -3,7 +3,7 @@ package com.example.podplay.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.example.podplay.repository.ItunesRepository
-import com.example.podplay.service.PodcastResponse
+import com.example.podplay.model.PodcastResponse
 import com.example.podplay.utils.DateUtils
 
 class SearchViewmodel(application: Application) : AndroidViewModel(application) {

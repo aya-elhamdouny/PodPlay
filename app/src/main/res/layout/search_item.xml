@@ -19,7 +19,7 @@
         android:layout_marginBottom="9dp"
         android:layout_marginStart="5dp"
         android:adjustViewBounds="true"
-        android:scaleType="fitStart"
+        android:scaleType="center"
         android:src="@drawable/ic_baseline_settings_system_daydream_24"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
