@@ -2,9 +2,13 @@ package com.example.podplay.viewmodels
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.podplay.model.Episode
 import com.example.podplay.model.Podcast
 import com.example.podplay.repository.PodcastRepository
+import kotlinx.coroutines.launch
 import java.util.*
 
 class PodcastViewmodel(application: Application) : AndroidViewModel(application) {
@@ -13,6 +17,11 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
     var repo : PodcastRepository? = null
     var episodeViewData : EpisodeViewData? = null
     var activepodcastViewData : PodcastViewData? = null
+
+    private val _podcastLiveData = MutableLiveData<PodcastViewData?
+            >()
+    val podcastLiveData: LiveData<PodcastViewData?> =
+        _podcastLiveData
 
     private fun episodeToEpisodeView(episodes: List<Episode>) :
       List<EpisodeViewData>{
@@ -49,7 +58,6 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
             var releaseDate: Date = Date(),
             var duration: String = ""
     )
-
     data class PodcastViewData(
             var subscribed: Boolean = false,
             var feedUrl: String = "",
@@ -60,15 +68,20 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
     )
 
 
-    fun getPodcast(podcastViewData : SearchViewmodel.podcastSummuryViewData) : PodcastViewData?{
-        val result = podcastViewData.feedUrl?.let { repo?.getPodcast(it) }
-        result?.let {
-            it.feedTitle = podcastViewData.name ?:""
-            it.imageUrl = podcastViewData.imageUrl ?:""
-            activepodcastViewData = podcastToPodcastView(it)
-            return  activepodcastViewData
+    fun getPodcast(podcastSummaryViewData: SearchViewmodel.podcastSummuryViewData) {
+        podcastSummaryViewData.feedUrl?.let { url ->
+            viewModelScope.launch {
+                repo?.getPodcast(url)?.let {
+                    it.feedTitle = podcastSummaryViewData.name ?: ""
+                    it.imageUrl = podcastSummaryViewData.imageUrl ?: ""
+                    _podcastLiveData.value = podcastToPodcastView(it)
+                } ?: run {
+                    _podcastLiveData.value = null
+                }
+            }
+        } ?: run {
+            _podcastLiveData.value = null
         }
-              return null
     }
 
 

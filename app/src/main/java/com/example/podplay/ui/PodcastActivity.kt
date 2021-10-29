@@ -11,6 +11,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.podplay.R
@@ -19,6 +20,7 @@ import com.example.podplay.databinding.ActivityPodcastBinding
 import com.example.podplay.repository.ItunesRepository
 import com.example.podplay.repository.PodcastRepository
 import com.example.podplay.service.ItunesService
+import com.example.podplay.service.RssFeedService
 import com.example.podplay.viewmodels.PodcastViewmodel
 import com.example.podplay.viewmodels.SearchViewmodel
 import kotlinx.coroutines.Dispatchers
@@ -82,7 +84,7 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
     private fun setupViewmodel(){
         val service = ItunesService.instance
         viewmodel.itunesRepository = ItunesRepository(service)
-        podcastViewModel.repo = PodcastRepository()
+        podcastViewModel.repo = PodcastRepository(RssFeedService.instance)
 
     }
 
@@ -166,6 +168,7 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
     }
 
     private fun showDetailFragment(){
+
         val podcastFragment = createPodcastFragment()
         supportFragmentManager.beginTransaction().add(
             R.id.podcastDetailsContainer , podcastFragment, TAG_FRAGMENT)
@@ -188,18 +191,24 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
 
 
     override fun onShowDetail(podcastSummuryViewData: SearchViewmodel.podcastSummuryViewData) {
-      val feedUrl = podcastSummuryViewData.feedUrl ?: return
+        podcastSummuryViewData.feedUrl ?: return
         showProgressBar()
-        val podcast = podcastViewModel.getPodcast(podcastSummuryViewData)
-        hideProgressBar()
-         if(podcast == null){
-             showError("Error loadig the feed ${feedUrl}")
-         }else{
-             showDetailFragment()
-         }
+        podcastViewModel.viewModelScope.launch (context = Dispatchers.Main) {
+            podcastViewModel.getPodcast(podcastSummuryViewData)
+            hideProgressBar()
+            showDetailFragment()
+        }
 
     }
-
+    private fun createSubscription() {
+        podcastViewModel.podcastLiveData.observe(this, {
+            hideProgressBar()
+            if (it != null) {
+                showDetailFragment()
+            } else {
+                showError("Error loading feed")}
+        })
+    }
 
     private fun addBackStackListener() {
         supportFragmentManager.addOnBackStackChangedListener {
