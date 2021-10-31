@@ -2,6 +2,8 @@ package com.example.podplay.viewmodels
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import com.example.podplay.model.Podcast
 import com.example.podplay.repository.ItunesRepository
 import com.example.podplay.model.PodcastResponse
 import com.example.podplay.utils.DateUtils
@@ -9,7 +11,6 @@ import com.example.podplay.utils.DateUtils
 class SearchViewmodel(application: Application) : AndroidViewModel(application) {
 
     var itunesRepository : ItunesRepository? = null
-
 
     data class podcastSummuryViewData(
        var name : String? = "",
@@ -30,6 +31,9 @@ class SearchViewmodel(application: Application) : AndroidViewModel(application) 
 
 
     }
+
+
+
 
 
 

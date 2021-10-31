@@ -1,5 +1,6 @@
 package com.example.podplay.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.*
@@ -12,11 +13,13 @@ import com.example.podplay.R
 import com.example.podplay.adapter.EpisodeListAdapter
 import com.example.podplay.databinding.FragmentDetailPodcastBinding
 import com.example.podplay.viewmodels.PodcastViewmodel
+import java.lang.RuntimeException
 
 class PodcastDetailFragment : Fragment() {
     private lateinit var binding: FragmentDetailPodcastBinding
     private val viewmodel : PodcastViewmodel by activityViewModels()
     private lateinit var episodeListAdapter: EpisodeListAdapter
+    private var listener : onPodcastDetailsListnener? = null
 
 
     companion object {
@@ -64,6 +67,8 @@ class PodcastDetailFragment : Fragment() {
                         EpisodeListAdapter(viewData.episodes)
                     binding.episodeRecylerview.adapter =
                         episodeListAdapter
+
+                    activity?.invalidateOptionsMenu()
                 }
             })
         updateControlls()
@@ -86,6 +91,52 @@ class PodcastDetailFragment : Fragment() {
                     .load(viewdata.imageUrl).circleCrop().into(binding.feedImageView)
         }
 
+    }
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        viewmodel.podcastLiveData.observe(viewLifecycleOwner, {
+                podcast ->
+            if (podcast != null) {
+                menu.findItem(R.id.menu_feed_action).title = if (podcast.subscribed)
+                    getString(R.string.unsubscribe) else
+                    getString(R.string.subscribed)
+            }
+        })
+        super.onPrepareOptionsMenu(menu)
+    }
+
+
+    interface onPodcastDetailsListnener{
+        fun onSubscribe()
+        fun onUnSubscribe()
+        fun onDelete()
+
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_feed_action -> {
+                if (item.title == getString(R.string.unsubscribe)) {
+                    listener?.onUnSubscribe()
+                } else {
+                    listener?.onSubscribe()
+                }
+                true
+            }
+            else ->
+                super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is onPodcastDetailsListnener){
+            listener= context
+
+        }else{
+            throw RuntimeException(context.toString() +
+            "must implemeny onPodcastDetailListener")
+        }
     }
 
 }

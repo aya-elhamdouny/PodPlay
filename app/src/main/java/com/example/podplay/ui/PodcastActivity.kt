@@ -29,7 +29,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdapterListener {
+class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdapterListener
+ , PodcastDetailFragment.onPodcastDetailsListnener{
 
     val TAG = javaClass.simpleName
     private lateinit var binding: ActivityPodcastBinding
@@ -52,6 +53,7 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
         updateControl()
          handleIntent(intent)
         addBackStackListener()
+        setupPodcastListView()
 
     }
 
@@ -84,7 +86,7 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
     private fun setupViewmodel(){
         val service = ItunesService.instance
         viewmodel.itunesRepository = ItunesRepository(service)
-        podcastViewModel.repo = PodcastRepository(RssFeedService.instance)
+        podcastViewModel.repo = PodcastRepository(RssFeedService.instance , podcastViewModel.dao)
 
     }
 
@@ -217,4 +219,37 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
             }
         }
     }
-}
+
+    override fun onSubscribe() {
+        podcastViewModel.savePoacst()
+        supportFragmentManager.popBackStack()
+    }
+
+    override fun onUnSubscribe() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onDelete() {
+        TODO("Not yet implemented")
+    }
+
+    private fun showSubscribedPodcast(){
+
+        val podcast = podcastViewModel.getPodcasts()?.value
+        if(podcast != null){
+            binding.toolbar.title = getString(R.string.subscribed)
+            adapter.setSearchData(podcast)
+        }
+    }
+
+
+    private fun setupPodcastListView(){
+        podcastViewModel.getPodcasts()?.observe(this,
+                {if (it != null){
+                    showSubscribedPodcast()
+                } })
+    }
+
+
+
+    }

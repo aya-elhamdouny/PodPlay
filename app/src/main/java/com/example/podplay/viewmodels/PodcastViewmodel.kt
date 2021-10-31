@@ -1,13 +1,13 @@
 package com.example.podplay.viewmodels
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import com.example.podplay.db.PodcastDao
+import com.example.podplay.db.PodcastDatabase
 import com.example.podplay.model.Episode
 import com.example.podplay.model.Podcast
 import com.example.podplay.repository.PodcastRepository
+import com.example.podplay.utils.DateUtils
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -15,13 +15,21 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
 
 
     var repo : PodcastRepository? = null
-    var episodeViewData : EpisodeViewData? = null
     var activepodcastViewData : PodcastViewData? = null
+    val dao : PodcastDao = PodcastDatabase.getInstance(application , viewModelScope).podcastDao()
+
+     var activePodcast : Podcast? = null
 
     private val _podcastLiveData = MutableLiveData<PodcastViewData?
             >()
     val podcastLiveData: LiveData<PodcastViewData?> =
         _podcastLiveData
+
+
+    var livePodcastSummaryData:
+            LiveData<List<SearchViewmodel.podcastSummuryViewData>>? = null
+
+
 
     private fun episodeToEpisodeView(episodes: List<Episode>) :
       List<EpisodeViewData>{
@@ -39,13 +47,13 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
 
 
     private fun podcastToPodcastView(podcast: Podcast) : PodcastViewData{
-        return PodcastViewData(
-                false,
-                podcast.feedUrl,
-                podcast.feedTitle,
-                podcast.feedDesc,
-                podcast.imageUrl,
-                episodeToEpisodeView(podcast.episodes)
+        return return PodcastViewData(
+            podcast.id != null,
+            podcast.feedTitle,
+            podcast.feedUrl,
+            podcast.feedDesc,
+            podcast.imageUrl,
+            episodeToEpisodeView(podcast.episodes)
         )
     }
 
@@ -75,6 +83,7 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
                     it.feedTitle = podcastSummaryViewData.name ?: ""
                     it.imageUrl = podcastSummaryViewData.imageUrl ?: ""
                     _podcastLiveData.value = podcastToPodcastView(it)
+                     activePodcast = it
                 } ?: run {
                     _podcastLiveData.value = null
                 }
@@ -83,6 +92,45 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
             _podcastLiveData.value = null
         }
     }
+  fun savePoacst(){
+      val repo = repo ?: return
+      activePodcast?.let {
+          repo.save(it)
+      }
+
+  }
+
+    private fun podcastToSummaryView(podcast: Podcast):
+            SearchViewmodel.podcastSummuryViewData {
+        return SearchViewmodel.podcastSummuryViewData(
+            podcast.feedTitle,
+            DateUtils.dateToShortDate(podcast.lastUpdated),
+            podcast.imageUrl,
+            podcast.feedUrl
+        )
+    }
+    fun getPodcasts(): LiveData<List<SearchViewmodel.podcastSummuryViewData>>? {
+        val repo = repo ?: return null
+    if(livePodcastSummaryData != null){
+        val livedata = repo.getAll()
+        livePodcastSummaryData = Transformations.map(livedata){
+            it.map {
+                podcastToSummaryView(it)
+            }
+        }
+    }
+        return livePodcastSummaryData
+    }
+
+
+
+
+
+
+
+
+
+
 
 
 

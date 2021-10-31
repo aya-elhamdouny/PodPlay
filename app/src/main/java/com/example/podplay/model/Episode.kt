@@ -21,7 +21,7 @@ data class Episode (
 
         @PrimaryKey
         var guid: String = "",
-        var podcastId: Long? = null,
+        var podcastID: Long? = null,
         var title: String = "",
         var description: String = "",
         var mediaUrl: String = "",

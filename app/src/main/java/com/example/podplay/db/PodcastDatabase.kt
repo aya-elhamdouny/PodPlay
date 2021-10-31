@@ -2,15 +2,15 @@ package com.example.podplay.db
 
 import android.content.Context
 import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room.*
 import com.example.podplay.model.Episode
 import com.example.podplay.model.Podcast
 import kotlinx.coroutines.CoroutineScope
+import java.util.*
 
 
 @Database(entities = [Podcast::class, Episode::class] , version = 1)
+@TypeConverters(PodcastDatabase.Converters::class)
 abstract class PodcastDatabase :RoomDatabase(){
 
 
@@ -30,10 +30,29 @@ abstract class PodcastDatabase :RoomDatabase(){
                   INSTACE= instance
                   return instance
               }
+   }
+    }
+
+
+    class Converters{
+        @TypeConverter
+        fun fromTimeStamp(value : Long?) : Date?{
+          return if (value!=null) null else Date(value)
+        }
+
+        @TypeConverter
+        fun toTimestamp(date: Date?): Long? {
+            return (date?.time)
+        }
 
 
 
-          }
+
+
+
+
+
+
 
 
 
