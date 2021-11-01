@@ -16,6 +16,8 @@ import com.example.podplay.viewmodels.PodcastViewmodel
 import java.lang.RuntimeException
 
 class PodcastDetailFragment : Fragment() {
+
+
     private lateinit var binding: FragmentDetailPodcastBinding
     private val viewmodel : PodcastViewmodel by activityViewModels()
     private lateinit var episodeListAdapter: EpisodeListAdapter
@@ -43,9 +45,11 @@ class PodcastDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?)  {
         super.onViewCreated(view, savedInstanceState)
+
         viewmodel.podcastLiveData.observe(viewLifecycleOwner,
             { viewData ->
                 if (viewData != null) {
+
                     binding.feedtextview.text = viewData.feedTitle
                     binding.desctextview.text = viewData.feedDesc
                     activity?.let { activity ->
@@ -54,24 +58,25 @@ class PodcastDetailFragment : Fragment() {
                     }
                     binding.desctextview.movementMethod =
                         ScrollingMovementMethod()
+
                     binding.episodeRecylerview.setHasFixedSize(true)
+
                     val layoutManager = LinearLayoutManager(activity)
-                    binding.episodeRecylerview.layoutManager =
-                        layoutManager
+                    binding.episodeRecylerview.layoutManager = layoutManager
+
                     val dividerItemDecoration = DividerItemDecoration(
                         binding.episodeRecylerview.context,
                         layoutManager.orientation)
 
                     binding.episodeRecylerview.addItemDecoration(dividerItemDecoration)
+
                     episodeListAdapter =
                         EpisodeListAdapter(viewData.episodes)
-                    binding.episodeRecylerview.adapter =
-                        episodeListAdapter
+                    binding.episodeRecylerview.adapter = episodeListAdapter
 
                     activity?.invalidateOptionsMenu()
                 }
             })
-        updateControlls()
     }
 
 
@@ -81,20 +86,12 @@ class PodcastDetailFragment : Fragment() {
     }
 
 
-    private fun updateControlls(){
-        val viewdata = viewmodel.activepodcastViewData ?: return
 
-        binding.feedtextview.text = viewdata.feedTitle
-        binding.desctextview.text = viewdata.feedDesc
-        activity?.let {
-            Glide.with(it)
-                    .load(viewdata.imageUrl).circleCrop().into(binding.feedImageView)
-        }
 
-    }
+
+
     override fun onPrepareOptionsMenu(menu: Menu) {
-        viewmodel.podcastLiveData.observe(viewLifecycleOwner, {
-                podcast ->
+        viewmodel.podcastLiveData.observe(viewLifecycleOwner, { podcast ->
             if (podcast != null) {
                 menu.findItem(R.id.menu_feed_action).title = if (podcast.subscribed)
                     getString(R.string.unsubscribe) else

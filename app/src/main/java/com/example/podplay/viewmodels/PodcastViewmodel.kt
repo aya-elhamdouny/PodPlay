@@ -91,7 +91,7 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
             _podcastLiveData.value = null
         }
     }
-  fun savePoacst(){
+  fun saveActivepodcast(){
       val repo = repo ?: return
       activePodcast?.let {
           repo.save(it)
@@ -103,7 +103,7 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
             SearchViewmodel.podcastSummuryViewData {
         return SearchViewmodel.podcastSummuryViewData(
             podcast.feedTitle,
-            DateUtils.dateToShortDate(podcast.lastUpdated),
+            podcast.lastUpdated?.let { DateUtils.dateToShortDate(it) },
             podcast.imageUrl,
             podcast.feedUrl
         )

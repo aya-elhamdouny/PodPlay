@@ -3,6 +3,7 @@ package com.example.podplay.db
 import android.content.Context
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.room.*
+import androidx.work.impl.WorkDatabaseMigrations.MIGRATION_1_2
 import com.example.podplay.model.Episode
 import com.example.podplay.model.Podcast
 import kotlinx.coroutines.CoroutineScope
@@ -40,7 +41,8 @@ abstract class PodcastDatabase :RoomDatabase(){
               synchronized(this){
                   val instance =
                       Room.databaseBuilder(context.applicationContext , PodcastDatabase::class.java , "Podplay")
-                              .allowMainThreadQueries()
+                          .allowMainThreadQueries()
+                          .fallbackToDestructiveMigration()
                           .build()
                   INSTACE= instance
                   return instance

@@ -37,10 +37,11 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
 
     val TAG = javaClass.simpleName
     private lateinit var binding: ActivityPodcastBinding
-    private val viewmodel: SearchViewmodel by viewModels<SearchViewmodel>()
-    private lateinit var adapter: PodcastlistAdapter
-    private lateinit var searchmenuItem: MenuItem
-    private val podcastViewModel by viewModels<PodcastViewmodel>()
+    private val podcastViewModel  by viewModels<PodcastViewmodel>()
+    private val viewmodel  by viewModels<SearchViewmodel>()
+    private lateinit var adapter : PodcastlistAdapter
+    private lateinit var searchmenuItem : MenuItem
+
 
     companion object {
         private const val TAG_FRAGMENT = "fragmentDetail"
@@ -59,8 +60,6 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
         handleIntent(intent)
         addBackStackListener()
         scheduleJobs()
-
-
     }
 
     private fun scheduleJobs(){
@@ -88,26 +87,11 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
         val inflater = menuInflater
         inflater.inflate(R.menu.menu_search, menu)
 
-        //set el search as actionview
         searchmenuItem = menu?.findItem(R.id.search_item)!!
         val searchview = searchmenuItem.actionView as SearchView
 
-        //3ashan a3rf ageb el text aly fl search bar
-        val searchmanger = getSystemService(Context.SEARCH_SERVICE) as SearchManager
-
-        //assign el manger bl view
-        searchview.setSearchableInfo(searchmanger.getSearchableInfo(componentName))
-        if (supportFragmentManager.backStackEntryCount > 0) {
-            binding.podcastRecyclerView.visibility = View.INVISIBLE
-        }
-        if (binding.podcastRecyclerView.visibility ==
-                View.INVISIBLE
-        ) {
-            searchmenuItem.isVisible = false
-        }
-
         searchmenuItem.setOnActionExpandListener(object :
-                MenuItem.OnActionExpandListener {
+            MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
 
                 return true
@@ -118,10 +102,24 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
                 return true
             }
         })
+
+        val searchmanger = getSystemService(Context.SEARCH_SERVICE) as SearchManager
+        searchview.setSearchableInfo(searchmanger.getSearchableInfo(componentName))
+
+        if (supportFragmentManager.backStackEntryCount > 0) {
+            binding.podcastRecyclerView.visibility = View.INVISIBLE
+        }
+        if (binding.podcastRecyclerView.visibility == View.INVISIBLE
+        ) {
+            searchmenuItem.isVisible = false
+        }
+
+
         return true
 
 
     }
+
 
 
 
@@ -228,15 +226,17 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
 
         val podcastFragment = createPodcastFragment()
         supportFragmentManager.beginTransaction().add(
-            R.id.podcastDetailsContainer, podcastFragment, TAG_FRAGMENT
-        )
-            .addToBackStack("fragmentDetail").commit()
+            R.id.podcastDetailsContainer, podcastFragment, TAG_FRAGMENT)
+            .addToBackStack(TAG_FRAGMENT).commit()
 
         binding.podcastRecyclerView.visibility = View.INVISIBLE
         searchmenuItem.isVisible = false
 
 
     }
+
+
+
 
     private fun showError(message: String) {
         AlertDialog.Builder(this)
@@ -269,7 +269,7 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
     }
 
     override fun onSubscribe() {
-        podcastViewModel.savePoacst()
+        podcastViewModel.saveActivepodcast()
         supportFragmentManager.popBackStack()
     }
 
@@ -288,6 +288,8 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
             adapter.setSearchData(podcast)
         }
     }
+
+
 
 
     private fun setupPodcastListView(){
