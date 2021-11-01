@@ -12,8 +12,11 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.podplay.R
+import com.example.podplay.db.PodcastDatabase
 import com.example.podplay.repository.PodcastRepository
+import com.example.podplay.service.RssFeedService
 import com.example.podplay.ui.PodcastActivity
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
 class EpisodeUpdateWorker(context: Context , params : WorkerParameters) :
@@ -25,11 +28,24 @@ class EpisodeUpdateWorker(context: Context , params : WorkerParameters) :
     }
 
 
-    override suspend fun doWork(): Result {
-        return coroutineScope{
-            Result.success()
-        }
+    override suspend fun doWork(): Result = coroutineScope {
+        val job = async {
+            val db = PodcastDatabase.getInstance(applicationContext  , this)
+            val repo = PodcastRepository(RssFeedService.instance , db.podcastDao())
 
+            val podcastUpdates = repo.updatePodcastEpisodes()
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                createNotifactionChannel()
+            }
+
+            for(podcastupdate in podcastUpdates ){
+                displayNotifaction(podcastupdate)
+
+            }
+        }
+        job.await()
+
+        Result.success()
     }
 
 
