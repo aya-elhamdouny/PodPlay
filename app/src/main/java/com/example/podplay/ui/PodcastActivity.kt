@@ -14,6 +14,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.*
 import com.example.podplay.R
 import com.example.podplay.adapter.PodcastlistAdapter
 import com.example.podplay.databinding.ActivityPodcastBinding
@@ -23,10 +24,12 @@ import com.example.podplay.service.ItunesService
 import com.example.podplay.service.RssFeedService
 import com.example.podplay.viewmodels.PodcastViewmodel
 import com.example.podplay.viewmodels.SearchViewmodel
+import com.example.podplay.worker.EpisodeUpdateWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
 
 
 class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdapterListener
@@ -41,6 +44,7 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
 
     companion object {
         private const val TAG_FRAGMENT = "fragmentDetail"
+        private const val TAG_EPISODE_UPDATE_JOB = "com.example.podplay.episode"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,6 +58,28 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
         setupPodcastListView()
         handleIntent(intent)
         addBackStackListener()
+        scheduleJobs()
+
+
+    }
+
+    private fun scheduleJobs(){
+        val constrains : Constraints = Constraints.Builder().apply {
+            setRequiredNetworkType(NetworkType.CONNECTED)
+            setRequiresCharging(true)
+                    }.build()
+
+        val request = PeriodicWorkRequestBuilder<EpisodeUpdateWorker>(
+            1 , TimeUnit.HOURS
+        ).setConstraints(constrains)
+            .build()
+
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            TAG_EPISODE_UPDATE_JOB,
+            ExistingPeriodicWorkPolicy.REPLACE,
+            request
+        )
 
 
     }
@@ -171,6 +197,18 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
         if (Intent.ACTION_SEARCH == intent.action) {
             val qurey = intent.getStringExtra(SearchManager.QUERY) ?: return
             performSearch(qurey)
+        }
+
+        val podcastFeedUrl = intent.getStringExtra(EpisodeUpdateWorker.EXTRA_FEED_URL)
+        if(podcastFeedUrl != null){
+            podcastViewModel.viewModelScope.launch {
+                val podcastSummuryViewData =
+                    podcastViewModel.setActivePodcast(podcastFeedUrl)
+                podcastSummuryViewData?.let { podcastSummuryViewData ->
+                onShowDetail(podcastSummuryViewData)
+
+                }
+            }
         }
     }
 

@@ -132,6 +132,21 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
     }
 
 
+    suspend fun setActivePodcast(feedUrl: String) : SearchViewmodel.podcastSummuryViewData?{
+        val repo = repo ?: return null
+        var podcast = repo.getPodcast(feedUrl)
+        if(podcast == null){
+            return null
+        }else{
+         _podcastLiveData.value = podcastToPodcastView(podcast)
+            activePodcast = podcast
+            return podcastToSummaryView(podcast)
+        }
+
+
+    }
+
+
 
 
 
