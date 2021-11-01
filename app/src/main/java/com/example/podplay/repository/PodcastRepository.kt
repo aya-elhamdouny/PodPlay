@@ -85,4 +85,63 @@ class PodcastRepository(private var feedService: RssFeedService , private var da
             dao.deletePodcast(podcast)
         }
     }
+
+
+
+
+    private suspend fun getNewEpisodes(localPodcast : Podcast) : List<Episode>{
+
+
+        val response = feedService.getFeed(localPodcast.feedUrl)
+        if(response != null){
+            val remoterespone = rssResponseToPodcast(localPodcast.feedUrl , localPodcast.imageUrl ,response)
+            remoterespone?.let {
+                val localEpisode = dao.loadEpisodes(localPodcast.id!!)
+
+                return remoterespone.episodes.filter { episode ->
+                    localEpisode.find {   episode.guid ==  it.guid } == null
+                }
+            }
+        }
+
+          return listOf()
+    }
+
+
+
+    fun saveNewEpisode( podcastId : Long , episodes : List<Episode>){
+         GlobalScope.launch {
+             for(episode in episodes){
+                 episode.podcastID = podcastId
+                 dao.insertEpisode(episode)
+             }
+         }
+
+
+    }
+
+    suspend fun updatePodcastEpisodes() : MutableList<PodcastUpdateInfo>{
+        val updatedList : MutableList<PodcastUpdateInfo> = mutableListOf()
+         val podcast = dao.loadPodcastStatic()
+        for(podcast in podcast){
+            val newEpisode  = getNewEpisodes(podcast)
+            if(newEpisode.count() >0 ){
+                podcast.id?.let {
+                    saveNewEpisode(it , newEpisode)
+                    updatedList.add(PodcastUpdateInfo(
+                            podcast.feedUrl , podcast.feedTitle,
+                            newEpisode.count()
+                    ))
+                }
+            }
+        }
+  return updatedList }
+
+
+
+    class PodcastUpdateInfo(
+            val feedUrl: String,
+            val name: String,
+            val newCount: Int
+    )
 }
