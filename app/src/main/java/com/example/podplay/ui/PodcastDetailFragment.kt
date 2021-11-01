@@ -108,7 +108,6 @@ class PodcastDetailFragment : Fragment() {
     interface onPodcastDetailsListnener{
         fun onSubscribe()
         fun onUnSubscribe()
-        fun onDelete()
 
 
     }

@@ -79,4 +79,10 @@ class PodcastRepository(private var feedService: RssFeedService , private var da
     fun getAll(): LiveData<List<Podcast>>{
          return dao.loadPodcasts()
     }
+
+    fun delete(podcast: Podcast) {
+        GlobalScope.launch {
+            dao.deletePodcast(podcast)
+        }
+    }
 }

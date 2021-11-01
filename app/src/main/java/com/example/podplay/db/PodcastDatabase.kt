@@ -9,8 +9,22 @@ import kotlinx.coroutines.CoroutineScope
 import java.util.*
 
 
+
+class Converters{
+    @TypeConverter
+    fun fromTimeStamp(value : Long?) : Date?{
+        return if (value!=null) null else Date(value)
+    }
+
+    @TypeConverter
+    fun toTimestamp(date: Date?): Long? {
+        return (date?.time)
+    }
+}
+
+
 @Database(entities = [Podcast::class, Episode::class] , version = 1)
-@TypeConverters(PodcastDatabase.Converters::class)
+@TypeConverters(Converters::class)
 abstract class PodcastDatabase :RoomDatabase(){
 
 
@@ -26,6 +40,7 @@ abstract class PodcastDatabase :RoomDatabase(){
               synchronized(this){
                   val instance =
                       Room.databaseBuilder(context.applicationContext , PodcastDatabase::class.java , "Podplay")
+                              .allowMainThreadQueries()
                           .build()
                   INSTACE= instance
                   return instance
@@ -34,16 +49,6 @@ abstract class PodcastDatabase :RoomDatabase(){
     }
 
 
-    class Converters{
-        @TypeConverter
-        fun fromTimeStamp(value : Long?) : Date?{
-          return if (value!=null) null else Date(value)
-        }
-
-        @TypeConverter
-        fun toTimestamp(date: Date?): Long? {
-            return (date?.time)
-        }
 
 
 
@@ -59,4 +64,3 @@ abstract class PodcastDatabase :RoomDatabase(){
 
 
     }
-}

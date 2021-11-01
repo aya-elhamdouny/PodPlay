@@ -2,6 +2,7 @@ package com.example.podplay.viewmodels
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.example.podplay.db.Converters
 import com.example.podplay.db.PodcastDao
 import com.example.podplay.db.PodcastDatabase
 import com.example.podplay.model.Episode
@@ -76,17 +77,15 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
     )
 
 
-    fun getPodcast(podcastSummaryViewData: SearchViewmodel.podcastSummuryViewData) {
+    suspend fun getPodcast(podcastSummaryViewData: SearchViewmodel.podcastSummuryViewData) {
         podcastSummaryViewData.feedUrl?.let { url ->
-            viewModelScope.launch {
-                repo?.getPodcast(url)?.let {
-                    it.feedTitle = podcastSummaryViewData.name ?: ""
-                    it.imageUrl = podcastSummaryViewData.imageUrl ?: ""
-                    _podcastLiveData.value = podcastToPodcastView(it)
-                     activePodcast = it
-                } ?: run {
-                    _podcastLiveData.value = null
-                }
+            repo?.getPodcast(url)?.let {
+                it.feedTitle = podcastSummaryViewData.name ?: ""
+                it.imageUrl = podcastSummaryViewData.imageUrl ?: ""
+                _podcastLiveData.value = podcastToPodcastView(it)
+                activePodcast = it
+            } ?: run {
+                _podcastLiveData.value = null
             }
         } ?: run {
             _podcastLiveData.value = null
@@ -125,7 +124,12 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
 
 
 
-
+    fun deleteActivePodcast() {
+        val repo = repo ?: return
+        activePodcast?.let {
+            repo.delete(it)
+        }
+    }
 
 
 
