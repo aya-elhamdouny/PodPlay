@@ -40,7 +40,7 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
                     it.title,
                     it.description,
                     it.mediaUrl,
-                    it.releaseDate,
+                it.releaseDate!!,
                     it.duration
             )
         }

@@ -26,6 +26,6 @@ data class Episode (
         var description: String = "",
         var mediaUrl: String = "",
         var mimeType: String = "",
-        var releaseDate: Date = Date(),
+        var releaseDate: Date? = Date(),
         var duration: String = ""
         )

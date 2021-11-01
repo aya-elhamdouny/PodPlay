@@ -281,7 +281,6 @@ class PodcastActivity : AppCompatActivity() , PodcastlistAdapter.PodcastListAdap
 
 
     private fun showSubscribedPodcast(){
-
         val podcast = podcastViewModel.getPodcasts()?.value
         if(podcast != null){
             binding.toolbar.title = getString(R.string.subscribed)

@@ -17,7 +17,7 @@ interface PodcastDao {
     @Query("SELECT * FROM Podcast ORDER BY FeedTitle ")
     fun loadPodcasts() : LiveData<List<Podcast>>
 
-    @Query("SELECT * FROM Episode WHERE podcastID = :podcastId ORDER BY releaseDate DESC")
+    @Query("SELECT * FROM Episode WHERE podcastID = :podcastId ")
     suspend fun loadEpisodes(podcastId : Long ) : List<Episode>
 
 
