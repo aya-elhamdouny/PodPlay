@@ -9,7 +9,6 @@ import com.example.podplay.model.Episode
 import com.example.podplay.model.Podcast
 import com.example.podplay.repository.PodcastRepository
 import com.example.podplay.utils.DateUtils
-import kotlinx.coroutines.launch
 import java.util.*
 
 class PodcastViewmodel(application: Application) : AndroidViewModel(application) {
@@ -40,7 +39,7 @@ class PodcastViewmodel(application: Application) : AndroidViewModel(application)
                     it.title,
                     it.description,
                     it.mediaUrl,
-                it.releaseDate!!,
+                    it.releaseDate,
                     it.duration
             )
         }

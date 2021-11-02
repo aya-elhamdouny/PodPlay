@@ -1,0 +1,48 @@
+package com.example.podplay.service
+
+import android.app.Activity
+import android.content.Context
+import android.media.MediaPlayer
+import android.media.session.MediaSession
+import android.net.Uri
+import android.os.Bundle
+import android.support.v4.media.session.MediaSessionCompat
+import androidx.fragment.app.FragmentActivity
+
+class PodPlayMediaCallBack(
+    val context: Context,
+    val mediaSession: MediaSessionCompat,
+    val mediaPlayer: MediaPlayer? = null
+)  : MediaSessionCompat.Callback() {
+
+
+    override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
+        super.onPlayFromUri(uri, extras)
+        println("Playing ${uri.toString()}")
+        onPlay()
+    }
+
+    override fun onPlay() {
+        super.onPlay()
+        println("onPlay called")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        println("onPause called")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        println("onStop called")
+    }
+
+
+
+
+
+
+
+
+
+}
