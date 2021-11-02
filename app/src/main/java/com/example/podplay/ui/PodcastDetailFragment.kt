@@ -2,6 +2,7 @@ package com.example.podplay.ui
 
 import android.content.ComponentName
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
@@ -24,7 +25,7 @@ import com.example.podplay.service.PodplaymediaService
 import com.example.podplay.viewmodels.PodcastViewmodel
 import java.lang.RuntimeException
 
-class PodcastDetailFragment : Fragment() {
+class PodcastDetailFragment : Fragment(), EpisodeListAdapter.EpisodeListAdapterListener{
 
 
     private lateinit var binding: FragmentDetailPodcastBinding
@@ -84,7 +85,7 @@ class PodcastDetailFragment : Fragment() {
                     binding.episodeRecylerview.addItemDecoration(dividerItemDecoration)
 
                     episodeListAdapter =
-                        EpisodeListAdapter(viewData.episodes)
+                        EpisodeListAdapter(viewData.episodes , this)
                     binding.episodeRecylerview.adapter = episodeListAdapter
 
                     activity?.invalidateOptionsMenu()
@@ -226,6 +227,30 @@ class PodcastDetailFragment : Fragment() {
         mediaBrowser= MediaBrowserCompat(fragmentActivity ,
                 ComponentName(fragmentActivity, PodplaymediaService::class.java) ,
                   MediaBrowserCallbacks() , null)
+    }
+
+
+    private fun startPlaying(episodeViewData: PodcastViewmodel.EpisodeViewData){
+        val fragmentActivity = activity as FragmentActivity
+        val controller = MediaControllerCompat.getMediaController(fragmentActivity)
+            controller.transportControls.playFromUri(Uri.parse(episodeViewData.mediaUrl) , null)
+    }
+
+    override fun onselectedEpisode(episodeviewdata: PodcastViewmodel.EpisodeViewData) {
+
+
+        val fragmentActivity= activity as FragmentActivity
+        val controller = MediaControllerCompat.getMediaController(fragmentActivity)
+
+        if(controller.playbackState != null){
+            if (controller.playbackState.state == PlaybackStateCompat.STATE_PLAYING){
+                controller.transportControls.pause()
+            }else{
+                startPlaying(episodeviewdata)
+            }
+        } else{
+            startPlaying(episodeviewdata)
+        }
     }
 
 }
